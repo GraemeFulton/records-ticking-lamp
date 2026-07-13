@@ -2,10 +2,18 @@
 /**
  * Plugin Name: RS Lamp Configurator
  * Description: Native 3D configurator + add-to-basket for the Build Your Lamp product. Shortcode: [lamp_configurator product_id="11850" variation_id="11851"]
- * Version: 1.3
+ * Version: 1.4
  * Author: The Records Ticking
  */
 if (!defined('ABSPATH')) exit;
+
+/* old Build Your Lamp product page -> the 3D configurator page */
+add_action('template_redirect', function(){
+  if (function_exists('is_product') && is_product() && (int) get_queried_object_id() === 11850){
+    wp_safe_redirect(home_url('/worldcup-custom-lamp/'), 301);
+    exit;
+  }
+});
 
 add_shortcode('lamp_configurator', 'rs_lamp_configurator_render');
 
@@ -38,9 +46,9 @@ function rs_lamp_configurator_render($atts){
   </div>
 
   <div class="rs-buy">
-    <h1 class="rs-title">BUILD YOUR <span>WORLD CUP</span> LAMP</h1>
+    <h1 class="rs-title">BUILD YOUR OWN <span>WORLD CUP</span> TRIONDA LAMP</h1>
     <p class="rs-price"><?php echo wp_kses_post($price); ?></p>
-    <p class="rs-tag">Four shade panels on an official FIFA Trionda ball.
+    <p class="rs-tag">Four shade panels on a World Cup style Trionda ball.
       Pick a player for each, or print any name &amp; number.</p>
     <p class="rs-label">CHOOSE YOUR PANELS</p>
     <div class="rs-rows" id="rsRows"></div>
