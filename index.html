@@ -225,6 +225,14 @@
     min-height:100vh; min-height:100dvh }
   body.embed .layout{ display:block; padding:0; margin:0 }
   body.embed #stage{ width:min(420px,100vw); margin:0 }
+
+  /* shop mode: lamp + customise sheet only, reports state to parent page */
+  body.shop header, body.shop #controls{ display:none }
+  body.shop{ display:flex; align-items:center; justify-content:center;
+    min-height:100vh; min-height:100dvh }
+  body.shop .layout{ display:block; padding:0; margin:0 }
+  body.shop #stage{ width:min(420px,100vw); margin:0 }
+  body.shop #fab{ display:inline-flex }
   @media (prefers-reduced-motion: reduce){
     *{ transition:none !important; animation:none !important }
   }
@@ -322,9 +330,11 @@
 
   var params = new URLSearchParams(location.search);
   var EMBED = params.get("embed") === "1";
+  var SHOP = params.get("shop") === "1";
   var AUTO = params.get("autorotate") !== "0";
   var RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (EMBED) document.body.classList.add("embed");
+  if (SHOP) document.body.classList.add("shop");
 
   function norm(s){ return String(s||"").toLowerCase().replace(/[^a-z]/g,"") }
   function fromRoster(k){
@@ -397,6 +407,14 @@
     if (rowUI.length) refreshRows();
     if (refreshMobile) refreshMobile();
     syncURL();
+    /* tell a host page (shop/embed iframe) what's selected */
+    if ((EMBED || SHOP) && window.parent !== window){
+      try {
+        window.parent.postMessage({type:"lamp:state", panels: panels.map(function(st){
+          return {key:st.key, name:st.name, num:st.num, kit:st.kit, cap:!!st.cap};
+        })}, "*");
+      } catch(err){}
+    }
   }
 
   /* ------- rotation ------- */
