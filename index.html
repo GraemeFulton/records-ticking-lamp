@@ -453,11 +453,11 @@
       if (target != null){
         var d = target - rot;
         if (RM || Math.abs(d) < 0.4){ rot = target; target = null; lastTouch = performance.now(); }
-        else rot += d * 0.11;
+        else rot += d * 0.16;
       } else {
         rot += vel; vel *= RM ? 0 : 0.94;
         if (Math.abs(vel) < 0.02) vel = 0;
-        if (AUTO && !RM && performance.now() - lastTouch > 2600) rot += 0.12;
+        if (AUTO && !RM && performance.now() - lastTouch > 2200) rot += 0.24;
       }
     }
     shade.style.transform = "rotateY(" + rot + "deg)";

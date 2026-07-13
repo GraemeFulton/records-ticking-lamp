@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RS Lamp Configurator
  * Description: Native 3D configurator + add-to-basket for the Build Your Lamp product. Shortcode: [lamp_configurator product_id="11850" variation_id="11851"]
- * Version: 1.0
+ * Version: 1.1
  * Author: The Records Ticking
  */
 if (!defined('ABSPATH')) exit;
@@ -24,7 +24,7 @@ function rs_lamp_configurator_render($atts){
   }
   $ball  = plugins_url('ball-strip.jpg', __FILE__);
   $price = $product->get_price_html();
-  $cart  = function_exists('wc_get_cart_url') ? wc_get_cart_url() : home_url('/basket/');
+  $cart  = function_exists('wc_get_cart_url') ? wc_get_cart_url() : home_url('/cart/');
 
   ob_start(); ?>
 <div class="rs-lamp" id="rsLamp">
@@ -39,16 +39,10 @@ function rs_lamp_configurator_render($atts){
 
   <div class="rs-buy">
     <p class="rs-price"><?php echo wp_kses_post($price); ?></p>
-    <p class="rs-label">SHADE PANELS &mdash; TAP A PANEL TO EDIT</p>
-    <div class="rs-chips" id="rsChips"></div>
-    <div class="rs-picker">
-      <select id="rsWho" aria-label="Player"></select>
-      <span class="rs-custom" id="rsCustomFields" hidden>
-        <input type="text" id="rsName" maxlength="14" placeholder="NAME" aria-label="Custom name">
-        <input type="text" id="rsNum" maxlength="2" inputmode="numeric" placeholder="No." aria-label="Number">
-        <select id="rsKit" aria-label="Preview colourway"></select>
-      </span>
-    </div>
+    <p class="rs-tag">Four shade panels on an official FIFA Trionda ball &mdash;
+      pick a player for each, or print any name &amp; number.</p>
+    <p class="rs-label">CHOOSE YOUR PANELS</p>
+    <div class="rs-rows" id="rsRows"></div>
     <form method="post" action="<?php echo esc_url($cart); ?>" id="rsForm">
       <input type="hidden" name="add-to-cart" value="<?php echo (int)$a['product_id']; ?>">
       <input type="hidden" name="product_id" value="<?php echo (int)$a['product_id']; ?>">
@@ -62,19 +56,19 @@ function rs_lamp_configurator_render($atts){
       <?php endfor; ?>
       <button type="submit" class="rs-add">ADD TO BASKET</button>
     </form>
-    <p class="rs-note">Handmade to order. Pick a player for each of the four shade panels,
-      or choose <b>YOUR NAME / ANY OTHER&hellip;</b> to add any name &amp; number.</p>
+    <p class="rs-note">Handmade to order. Every panel is lit from inside by the lamp.</p>
   </div>
 </div>
 
 <style>
-.rs-lamp{ display:flex; flex-wrap:wrap; gap:34px; align-items:flex-start; margin:8px 0 44px }
+.rs-lamp{ display:flex; flex-wrap:wrap; gap:38px; align-items:flex-start; margin:8px 0 44px }
 .rs-lamp *, .rs-lamp *:before, .rs-lamp *:after{ box-sizing:border-box }
 
 /* ---- stage: real photo below, CSS-3D shade above ---- */
 .rs-stage{ position:relative; flex:1 1 320px; max-width:420px; aspect-ratio:420/590;
   border-radius:10px; overflow:hidden; touch-action:pan-y; cursor:grab;
   user-select:none; -webkit-user-select:none;
+  box-shadow:0 28px 56px -28px rgba(30,25,20,.5);
   background:radial-gradient(150% 125% at 51% 66%, #ddd8d1 0%, #b5aea5 46%, #837c72 82%, #6e6860 100%) }
 .rs-stage.grabbing{ cursor:grabbing }
 .rs-scene{ position:absolute; top:0; left:0; width:420px; height:590px; transform-origin:top left }
@@ -124,31 +118,43 @@ function rs_lamp_configurator_render($atts){
   color:rgba(44,41,36,.6); font-size:12px; letter-spacing:.14em; text-transform:uppercase; pointer-events:none }
 
 /* ---- buy column ---- */
-.rs-buy{ flex:1 1 300px; max-width:440px }
-.rs-price{ color:#d5281e; font-size:30px; font-weight:700; margin:0 0 16px }
-.rs-price del{ color:#999; margin-right:8px }
-.rs-label{ font-size:11px; letter-spacing:.16em; color:#777; font-weight:600; margin:0 0 10px }
-.rs-chips{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px }
-.rs-chips .chip{ flex:none; display:inline-flex; align-items:center; gap:7px;
-  border:1px solid #ddd; background:#fff; color:#222; border-radius:999px;
-  padding:8px 14px; font-size:12px; letter-spacing:.04em; cursor:pointer; line-height:1.2 }
-.rs-chips .chip .idx{ color:#999; font-weight:700 }
-.rs-chips .chip.active{ background:#141414; color:#fff; border-color:#141414 }
-.rs-chips .chip.active .idx{ color:inherit; opacity:.7 }
-.rs-picker{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 18px }
-.rs-picker select, .rs-picker input{ font-size:14px; color:#222; background:#fff;
-  border:1px solid #ddd; border-radius:2px; padding:9px 10px; margin:0 }
-.rs-picker #rsWho{ flex:1 1 100%; width:100% }
-.rs-custom{ display:flex; gap:8px; flex:1 1 100%; flex-wrap:wrap }
+.rs-buy{ flex:1 1 320px; max-width:460px }
+.rs-price{ color:#d5281e; font-size:34px; font-weight:800; margin:0 0 6px; font-variant-numeric:tabular-nums }
+.rs-price del{ color:#999; margin-right:8px; font-weight:400 }
+.rs-tag{ font-size:14px; color:#555; margin:0 0 22px; line-height:1.55; max-width:40ch }
+.rs-label{ font-size:11px; letter-spacing:.18em; color:#888; font-weight:700; margin:0 0 10px }
+.rs-rows{ display:flex; flex-direction:column; gap:10px; margin:0 0 20px }
+.rs-row{ display:grid; grid-template-columns:52px 1fr; gap:12px; align-items:start;
+  padding:10px 12px; background:#fff; border:1px solid #e2e2e2; border-radius:4px; cursor:pointer;
+  transition:border-color .15s, box-shadow .15s }
+.rs-row.active{ border-color:#141414; box-shadow:inset 3px 0 0 #d5281e }
+.rs-mini{ width:52px; height:52px; border-radius:3px; display:flex; align-items:center; justify-content:center;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); overflow:hidden }
+.rs-mini b{ font-family:Impact,"Arial Narrow","Helvetica Neue",sans-serif; font-weight:400;
+  font-size:28px; line-height:1; letter-spacing:.02em }
+.rs-row-main{ display:flex; flex-direction:column; gap:6px; min-width:0 }
+.rs-row-label{ font-size:10px; letter-spacing:.18em; color:#999; font-weight:700 }
+.rs-selwrap{ display:grid; grid-template-columns:1fr 30px; align-items:center; background:#fff;
+  border:1px solid #ddd; border-radius:3px }
+.rs-row.active .rs-selwrap{ border-color:#bbb }
+.rs-selwrap select{ grid-column:1 / -1; grid-row:1; appearance:none; -webkit-appearance:none;
+  border:0; background:transparent; margin:0; padding:9px 30px 9px 10px; width:100%;
+  font-size:15px; color:#222; cursor:pointer }
+.rs-selwrap svg{ grid-column:2; grid-row:1; justify-self:center; pointer-events:none }
+.rs-selwrap select:focus-visible{ outline:2px solid #d5281e; outline-offset:-1px; border-radius:3px }
+.rs-custom{ display:flex; gap:8px; flex-wrap:wrap }
 .rs-custom[hidden]{ display:none }
-.rs-custom #rsName{ flex:1; min-width:120px; text-transform:uppercase }
-.rs-custom #rsNum{ width:64px }
-.rs-custom #rsKit{ flex:1 1 150px }
+.rs-custom input{ font-size:15px; color:#222; background:#fff; border:1px solid #ddd;
+  border-radius:3px; padding:9px 10px; margin:0 }
+.rs-custom input:focus-visible{ outline:2px solid #d5281e; outline-offset:-1px }
+.rs-custom .rs-cname{ flex:1; min-width:110px; text-transform:uppercase }
+.rs-custom .rs-cnum{ width:60px }
+.rs-custom .rs-selwrap{ flex:1 1 150px }
 .rs-add{ display:block; width:100%; background:#141414; color:#fff; border:0;
-  padding:15px 20px; font-size:14px; font-weight:600; letter-spacing:.12em;
-  cursor:pointer; border-radius:2px; text-transform:uppercase }
+  padding:16px 20px; font-size:15px; font-weight:700; letter-spacing:.14em;
+  cursor:pointer; border-radius:3px; text-transform:uppercase; transition:background .15s }
 .rs-add:hover{ background:#d5281e; color:#fff }
-.rs-note{ font-size:13px; color:#777; margin-top:14px; line-height:1.5 }
+.rs-note{ font-size:13px; color:#888; margin-top:12px; line-height:1.5 }
 @media (max-width:719px){ .rs-stage{ flex-basis:100%; margin:0 auto } .rs-buy{ max-width:none } }
 @media (prefers-reduced-motion: reduce){ .rs-lamp *{ transition:none !important; animation:none !important } }
 </style>
@@ -164,6 +170,19 @@ function rs_lamp_configurator_render($atts){
   var KIT_LABELS = { england:"England white", keeper:"Keeper blue", keeperdark:"Keeper dark",
     germany:"Germany white", france:"France navy", spain:"Spain red", portugal:"Portugal red",
     brazil:"Brazil yellow", norway:"Norway red", argentina:"Argentina stripes", scotland:"Scotland navy" };
+  var KIT_MINI = {
+    england:   {bg:"linear-gradient(#f6f4ee,#e6e3da)", txt:"#d5281e"},
+    keeper:    {bg:"linear-gradient(#1e548e,#0e2c52)", txt:"#eef4f8"},
+    keeperdark:{bg:"linear-gradient(#2b2b30,#111114)", txt:"#cdfa3e"},
+    germany:   {bg:"linear-gradient(#f7f6f2,#e8e6df)", txt:"#181818"},
+    france:    {bg:"linear-gradient(#1b3260,#101f3e)", txt:"#f5f2ec"},
+    spain:     {bg:"linear-gradient(#c81f2c,#9d1420)", txt:"#f3c211"},
+    portugal:  {bg:"linear-gradient(#a51c24,#7c1219)", txt:"#f5f2ec"},
+    brazil:    {bg:"linear-gradient(#f8ca00,#e0b400)", txt:"#1b7a3d"},
+    norway:    {bg:"linear-gradient(#d32330,#a91622)", txt:"#f5f2ec"},
+    argentina: {bg:"repeating-linear-gradient(90deg,#a3cfe9 0 9px,#f3f6f8 9px 18px)", txt:"#172a53"},
+    scotland:  {bg:"linear-gradient(#22345f,#151f3d)", txt:"#f5f2ec"}
+  };
   var ROSTER = {
     pickford:{label:"Pickford", num:1, kit:"keeper"},
     james:{label:"James", num:2, kit:"england"},
@@ -225,63 +244,71 @@ function rs_lamp_configurator_render($atts){
     if (el.scrollWidth > 232) el.style.transform = "scaleX(" + (232/el.scrollWidth).toFixed(3) + ")";
   }
 
-  /* ---- chooser ---- */
-  var chipsEl = document.getElementById("rsChips");
-  var who = document.getElementById("rsWho");
-  var customFields = document.getElementById("rsCustomFields");
-  var nameIn = document.getElementById("rsName");
-  var numIn = document.getElementById("rsNum");
-  var kitIn = document.getElementById("rsKit");
+  /* ---- one row per panel, each with its own picker ---- */
+  var rowsEl = document.getElementById("rsRows");
   var form = document.getElementById("rsForm");
-
-  who.innerHTML = '<option value="custom">YOUR NAME / ANY OTHER…</option>' +
+  var CHEV = '<svg viewBox="0 0 8 5" width="8" height="5" fill="none" aria-hidden="true">' +
+             '<path d="M.5.5 4 4 7.5.5" stroke="#666"/></svg>';
+  var whoOpts = '<option value="custom">YOUR NAME / ANY OTHER…</option>' +
     Object.keys(ROSTER).map(function(k){
-      return '<option value="' + k + '">' + ROSTER[k].label + '</option>';
+      return '<option value="' + k + '">' + ROSTER[k].label + ' — ' + ROSTER[k].num + '</option>';
     }).join("");
-  kitIn.innerHTML = KITS.map(function(k){
+  var kitOpts = KITS.map(function(k){
     return '<option value="' + k + '">' + KIT_LABELS[k] + '</option>';
   }).join("");
 
-  var chipEls = [];
+  var rowUI = [];
   panels.forEach(function(_, i){
-    var b = document.createElement("button");
-    b.type = "button"; b.className = "chip";
-    b.innerHTML = '<span class="idx">' + (i+1) + '</span><span class="cname"></span>';
-    b.addEventListener("click", function(){
-      editing = i; syncPicker(); render(); focusPanel(i);
+    var row = document.createElement("div");
+    row.className = "rs-row";
+    row.innerHTML =
+      '<span class="rs-mini" aria-hidden="true"><b></b></span>' +
+      '<div class="rs-row-main">' +
+        '<span class="rs-row-label">PANEL ' + (i+1) + '</span>' +
+        '<span class="rs-selwrap"><select class="rs-who" aria-label="Panel ' + (i+1) + ' player">' +
+          whoOpts + '</select>' + CHEV + '</span>' +
+        '<span class="rs-custom" hidden>' +
+          '<input type="text" class="rs-cname" maxlength="14" placeholder="NAME" aria-label="Panel ' + (i+1) + ' custom name">' +
+          '<input type="text" class="rs-cnum" maxlength="2" inputmode="numeric" placeholder="No." aria-label="Panel ' + (i+1) + ' number">' +
+          '<span class="rs-selwrap"><select class="rs-ckit" aria-label="Panel ' + (i+1) + ' colourway">' +
+            kitOpts + '</select>' + CHEV + '</span>' +
+        '</span>' +
+      '</div>';
+    rowsEl.appendChild(row);
+
+    var ui = {
+      row: row, mini: row.querySelector(".rs-mini"), miniNum: row.querySelector(".rs-mini b"),
+      sel: row.querySelector(".rs-who"), cust: row.querySelector(".rs-custom"),
+      cname: row.querySelector(".rs-cname"), cnum: row.querySelector(".rs-cnum"),
+      ckit: row.querySelector(".rs-ckit")
+    };
+    rowUI[i] = ui;
+
+    function applyCustom(){
+      panels[i] = {key:"custom", name:(ui.cname.value||"YOUR NAME").toUpperCase(),
+                   num:ui.cnum.value.replace(/\D/g,""), kit:ui.ckit.value};
+      render(); focusPanel(i);
+    }
+    ui.sel.addEventListener("focus", function(){ setEditing(i); });
+    ui.sel.addEventListener("change", function(){
+      if (ui.sel.value === "custom"){
+        if (!ui.cnum.value) ui.cnum.value = "26";
+        applyCustom();
+      } else {
+        panels[i] = fromRoster(ui.sel.value);
+        render(); focusPanel(i);
+      }
     });
-    chipsEl.appendChild(b);
-    chipEls.push(b);
+    ui.cname.addEventListener("input", applyCustom);
+    ui.cnum.addEventListener("input", applyCustom);
+    ui.ckit.addEventListener("change", applyCustom);
+    row.addEventListener("click", function(){ setEditing(i); });
   });
 
-  function syncPicker(){
-    var st = panels[editing];
-    who.value = st.key;
-    customFields.hidden = st.key !== "custom";
-    if (st.key === "custom"){
-      if (document.activeElement !== nameIn) nameIn.value = st.name === "YOUR NAME" ? "" : st.name;
-      if (document.activeElement !== numIn) numIn.value = st.num;
-      kitIn.value = st.kit;
-    }
+  function setEditing(i){
+    if (editing !== i){ editing = i; render(); }
+    focusPanel(i);
   }
-  function applyCustom(){
-    panels[editing] = {key:"custom", name:(nameIn.value||"YOUR NAME").toUpperCase(),
-                       num:numIn.value.replace(/\D/g,""), kit:kitIn.value};
-    render(); focusPanel(editing);
-  }
-  who.addEventListener("change", function(){
-    if (who.value === "custom"){
-      customFields.hidden = false;
-      if (!numIn.value) numIn.value = "26";
-      applyCustom();
-    } else {
-      panels[editing] = fromRoster(who.value);
-      render(); syncPicker(); focusPanel(editing);
-    }
-  });
-  nameIn.addEventListener("input", applyCustom);
-  numIn.addEventListener("input", applyCustom);
-  kitIn.addEventListener("change", applyCustom);
 
   /* map a panel to the exact WooCommerce option string */
   function optionFor(slug, st){
@@ -304,6 +331,22 @@ function rs_lamp_configurator_render($atts){
       el.querySelector(".name").textContent = st.name;
       el.querySelector(".num").textContent = st.num;
       fitName(el.querySelector(".name"));
+
+      var ui = rowUI[i];
+      ui.row.classList.toggle("active", i === editing);
+      ui.sel.value = st.key;
+      ui.cust.hidden = st.key !== "custom";
+      if (st.key === "custom"){
+        if (document.activeElement !== ui.cname)
+          ui.cname.value = st.name === "YOUR NAME" ? "" : st.name;
+        if (document.activeElement !== ui.cnum) ui.cnum.value = st.num;
+        ui.ckit.value = st.kit;
+      }
+      var mini = KIT_MINI[st.kit] || KIT_MINI.england;
+      ui.mini.style.background = mini.bg;
+      ui.miniNum.style.color = mini.txt;
+      ui.miniNum.textContent = (st.num === "" || st.num == null) ? "?" : st.num;
+
       var slug = SLUGS[i];
       if (slug && form.elements["attribute_" + slug])
         form.elements["attribute_" + slug].value = optionFor(slug, st);
@@ -311,12 +354,6 @@ function rs_lamp_configurator_render($atts){
         (st.key === "custom" && st.name !== "YOUR NAME") ? st.name : "";
       form.elements["rs_custom_num_" + (i+1)].value =
         st.key === "custom" ? (st.num || "") : "";
-    });
-    chipEls.forEach(function(b, i){
-      var st = panels[i];
-      b.querySelector(".cname").textContent =
-        st.name + (st.num === "" || st.num == null ? "" : " " + st.num);
-      b.classList.toggle("active", i === editing);
     });
   }
 
@@ -350,11 +387,11 @@ function rs_lamp_configurator_render($atts){
       if (target != null){
         var d = target - rot;
         if (RM || Math.abs(d) < 0.4){ rot = target; target = null; lastTouch = performance.now(); }
-        else rot += d * 0.11;
+        else rot += d * 0.16;
       } else {
         rot += vel; vel *= RM ? 0 : 0.94;
         if (Math.abs(vel) < 0.02) vel = 0;
-        if (!RM && performance.now() - lastTouch > 2600) rot += 0.12;
+        if (!RM && performance.now() - lastTouch > 2200) rot += 0.24;
       }
     }
     shade.style.transform = "rotateY(" + rot + "deg)";
@@ -369,7 +406,6 @@ function rs_lamp_configurator_render($atts){
 
   fit();
   render();
-  syncPicker();
   requestAnimationFrame(frame);
 })();
 </script>
@@ -405,7 +441,7 @@ add_action('woocommerce_checkout_create_order_line_item', function($item, $cart_
   if (!empty($values['rs_custom'])){
     foreach ($values['rs_custom'] as $c){
       $item->add_meta_data('Panel ' . $c['panel'] . ' custom',
-        $c['name'] . ($c['num'] !== '' ? ' #' . $c['num'] : ''));
+        $c['num'] !== '' ? $c['name'] . ' #' . $c['num'] : $c['name']);
     }
   }
 }, 10, 3);
