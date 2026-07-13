@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RS Lamp Configurator
  * Description: Native 3D configurator + add-to-basket for the Build Your Lamp product. Shortcode: [lamp_configurator product_id="11850" variation_id="11851"]
- * Version: 1.4
+ * Version: 1.5
  * Author: The Records Ticking
  */
 if (!defined('ABSPATH')) exit;
@@ -31,6 +31,7 @@ function rs_lamp_configurator_render($atts){
     }
   }
   $ball  = plugins_url('ball-strip.jpg', __FILE__);
+  $workshop = plugins_url('workshop.jpg', __FILE__);
   $price = $product->get_price_html();
   $cart  = function_exists('wc_get_cart_url') ? wc_get_cart_url() : home_url('/cart/');
 
@@ -68,6 +69,30 @@ function rs_lamp_configurator_render($atts){
     <p class="rs-note">Handmade to order. Every panel is lit from inside by the lamp.</p>
   </div>
 </div>
+
+<section class="rs-desc">
+  <figure class="rs-desc-img">
+    <img src="<?php echo esc_url($workshop); ?>" alt="Trionda lamp bases being handmade in The Record's Ticking workshop" loading="lazy">
+  </figure>
+  <div class="rs-desc-txt">
+    <h2 class="rs-desc-title">HANDMADE IN <span>ENGLAND</span></h2>
+    <p>Bespoke handmade table lamps, made using an official Fifa Trionda World Cup mini ball.</p>
+    <ul>
+      <li>The base features a real mini Trionda football, sat on a weighty hand cast mini cone.</li>
+      <li>Finished with the highest quality metal lampholder and switch.</li>
+      <li>Shirt patterns of most countries have been meticulously replicated.</li>
+      <li>Mix and match Allstars shade: any name, number and country.</li>
+      <li>Custom names and numbers are added straight from your choices above, so there is no need to leave an order note.</li>
+      <li>We only have limited mini footballs, so order quick to avoid missing out.</li>
+    </ul>
+    <dl class="rs-specs">
+      <div><dt>SHADE</dt><dd>(h) 20cm x (w) 20cm x (d) 20cm</dd></div>
+      <div><dt>LAMP</dt><dd>(h) 22cm x (w) 13cm x (d) 13cm</dd></div>
+      <div><dt>WEIGHT</dt><dd>1.6 kg</dd></div>
+      <div><dt>DISPATCH</dt><dd>Please allow 3 working days for your shade to be made</dd></div>
+    </dl>
+  </div>
+</section>
 <button type="button" class="rs-topbtn" id="rsTop" aria-label="Scroll back to the lamp preview">&uarr;&nbsp;&nbsp;PREVIEW</button>
 
 <style>
@@ -170,6 +195,26 @@ function rs_lamp_configurator_render($atts){
   cursor:pointer; border-radius:3px; text-transform:uppercase; transition:background .15s }
 .rs-add:hover{ background:#d5281e; color:#fff }
 .rs-note{ font-size:13px; color:#888; margin-top:12px; line-height:1.5 }
+/* ---- description / workmanship section ---- */
+.rs-desc{ display:flex; flex-wrap:wrap; gap:44px; align-items:center;
+  justify-content:center; max-width:960px; margin:0 auto 56px }
+.rs-desc-img{ flex:1 1 320px; max-width:480px; margin:0 }
+.rs-desc-img img{ width:100%; height:auto; display:block; border-radius:10px;
+  box-shadow:0 28px 56px -28px rgba(30,25,20,.5) }
+.rs-desc-txt{ flex:1 1 300px; max-width:440px }
+.rs-desc-title{ font-family:"Arial Narrow","Helvetica Neue",Impact,"Roboto Condensed",sans-serif;
+  font-size:clamp(24px, 2.8vw, 32px); font-weight:800; letter-spacing:.04em;
+  line-height:1.1; color:#141414; margin:0 0 12px; text-transform:uppercase }
+.rs-desc-title span{ color:#d5281e }
+.rs-desc-txt p{ font-size:14px; color:#555; line-height:1.6; margin:0 0 12px }
+.rs-desc-txt ul{ margin:0 0 20px; padding-left:18px; font-size:14px; color:#555; line-height:1.7 }
+.rs-desc-txt li{ margin-bottom:4px }
+.rs-specs{ margin:0; border-top:1px solid #e2e2e2 }
+.rs-specs > div{ display:flex; gap:16px; padding:9px 2px; border-bottom:1px solid #e2e2e2 }
+.rs-specs dt{ flex:0 0 84px; font-size:11px; letter-spacing:.16em; color:#999;
+  font-weight:700; line-height:2 }
+.rs-specs dd{ margin:0; font-size:13px; color:#444; line-height:1.7 }
+
 .rs-topbtn{ position:fixed; right:14px; bottom:14px; z-index:90; display:none;
   align-items:center; background:#141414; color:#fff; border:0; border-radius:999px;
   padding:12px 20px; font-size:13px; font-weight:700; letter-spacing:.12em;
@@ -177,7 +222,7 @@ function rs_lamp_configurator_render($atts){
 .rs-topbtn.show{ display:inline-flex }
 .rs-topbtn:hover{ background:#d5281e; color:#fff }
 @media (max-width:719px){
-  .rs-lamp{ padding:0 16px }
+  .rs-lamp, .rs-desc{ padding:0 16px }
   .rs-stage{ flex-basis:100%; margin:0 auto }
   .rs-buy{ max-width:none }
 }
