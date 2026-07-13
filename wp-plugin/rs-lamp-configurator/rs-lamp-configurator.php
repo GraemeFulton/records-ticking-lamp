@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RS Lamp Configurator
  * Description: Native 3D configurator + add-to-basket for the Build Your Lamp product. Shortcode: [lamp_configurator product_id="11850" variation_id="11851"]
- * Version: 1.1
+ * Version: 1.3
  * Author: The Records Ticking
  */
 if (!defined('ABSPATH')) exit;
@@ -38,9 +38,10 @@ function rs_lamp_configurator_render($atts){
   </div>
 
   <div class="rs-buy">
+    <h1 class="rs-title">BUILD YOUR <span>WORLD CUP</span> LAMP</h1>
     <p class="rs-price"><?php echo wp_kses_post($price); ?></p>
-    <p class="rs-tag">Four shade panels on an official FIFA Trionda ball &mdash;
-      pick a player for each, or print any name &amp; number.</p>
+    <p class="rs-tag">Four shade panels on an official FIFA Trionda ball.
+      Pick a player for each, or print any name &amp; number.</p>
     <p class="rs-label">CHOOSE YOUR PANELS</p>
     <div class="rs-rows" id="rsRows"></div>
     <form method="post" action="<?php echo esc_url($cart); ?>" id="rsForm">
@@ -59,9 +60,11 @@ function rs_lamp_configurator_render($atts){
     <p class="rs-note">Handmade to order. Every panel is lit from inside by the lamp.</p>
   </div>
 </div>
+<button type="button" class="rs-topbtn" id="rsTop" aria-label="Scroll back to the lamp preview">&uarr;&nbsp;&nbsp;PREVIEW</button>
 
 <style>
-.rs-lamp{ display:flex; flex-wrap:wrap; gap:38px; align-items:flex-start; margin:8px 0 44px }
+.rs-lamp{ display:flex; flex-wrap:wrap; gap:44px; align-items:flex-start;
+  justify-content:center; max-width:960px; margin:8px auto 44px }
 .rs-lamp *, .rs-lamp *:before, .rs-lamp *:after{ box-sizing:border-box }
 
 /* ---- stage: real photo below, CSS-3D shade above ---- */
@@ -119,6 +122,10 @@ function rs_lamp_configurator_render($atts){
 
 /* ---- buy column ---- */
 .rs-buy{ flex:1 1 320px; max-width:460px }
+.rs-title{ font-family:"Arial Narrow","Helvetica Neue",Impact,"Roboto Condensed",sans-serif;
+  font-size:clamp(28px, 3.4vw, 40px); font-weight:800; letter-spacing:.04em;
+  line-height:1.08; color:#141414; margin:0 0 10px; text-transform:uppercase }
+.rs-title span{ color:#d5281e }
 .rs-price{ color:#d5281e; font-size:34px; font-weight:800; margin:0 0 6px; font-variant-numeric:tabular-nums }
 .rs-price del{ color:#999; margin-right:8px; font-weight:400 }
 .rs-tag{ font-size:14px; color:#555; margin:0 0 22px; line-height:1.55; max-width:40ch }
@@ -155,7 +162,17 @@ function rs_lamp_configurator_render($atts){
   cursor:pointer; border-radius:3px; text-transform:uppercase; transition:background .15s }
 .rs-add:hover{ background:#d5281e; color:#fff }
 .rs-note{ font-size:13px; color:#888; margin-top:12px; line-height:1.5 }
-@media (max-width:719px){ .rs-stage{ flex-basis:100%; margin:0 auto } .rs-buy{ max-width:none } }
+.rs-topbtn{ position:fixed; right:14px; bottom:14px; z-index:90; display:none;
+  align-items:center; background:#141414; color:#fff; border:0; border-radius:999px;
+  padding:12px 20px; font-size:13px; font-weight:700; letter-spacing:.12em;
+  cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,.35) }
+.rs-topbtn.show{ display:inline-flex }
+.rs-topbtn:hover{ background:#d5281e; color:#fff }
+@media (max-width:719px){
+  .rs-lamp{ padding:0 16px }
+  .rs-stage{ flex-basis:100%; margin:0 auto }
+  .rs-buy{ max-width:none }
+}
 @media (prefers-reduced-motion: reduce){ .rs-lamp *{ transition:none !important; animation:none !important } }
 </style>
 
@@ -251,7 +268,7 @@ function rs_lamp_configurator_render($atts){
              '<path d="M.5.5 4 4 7.5.5" stroke="#666"/></svg>';
   var whoOpts = '<option value="custom">YOUR NAME / ANY OTHER…</option>' +
     Object.keys(ROSTER).map(function(k){
-      return '<option value="' + k + '">' + ROSTER[k].label + ' — ' + ROSTER[k].num + '</option>';
+      return '<option value="' + k + '">' + ROSTER[k].label + ' ' + ROSTER[k].num + '</option>';
     }).join("");
   var kitOpts = KITS.map(function(k){
     return '<option value="' + k + '">' + KIT_LABELS[k] + '</option>';
@@ -403,6 +420,22 @@ function rs_lamp_configurator_render($atts){
   }
   function fit(){ scene.style.transform = "scale(" + (stage.clientWidth/420) + ")"; }
   window.addEventListener("resize", fit);
+
+  /* back-to-preview button once the lamp is scrolled out of view */
+  var topBtn = document.getElementById("rsTop");
+  if ("IntersectionObserver" in window){
+    new IntersectionObserver(function(entries){
+      topBtn.classList.toggle("show", !entries[0].isIntersecting);
+    }, {threshold: 0.1}).observe(stage);
+  } else {
+    window.addEventListener("scroll", function(){
+      topBtn.classList.toggle("show",
+        window.scrollY > stage.getBoundingClientRect().top + window.scrollY + stage.offsetHeight);
+    });
+  }
+  topBtn.addEventListener("click", function(){
+    stage.scrollIntoView({behavior: RM ? "auto" : "smooth", block: "start"});
+  });
 
   fit();
   render();
