@@ -2,10 +2,21 @@
 /**
  * Plugin Name: RS Lamp Configurator
  * Description: Native 3D configurator + add-to-basket for the Build Your Lamp product. Shortcode: [lamp_configurator product_id="11850" variation_id="11851"]
- * Version: 1.8
+ * Version: 1.9
  * Author: The Records Ticking
  */
 if (!defined('ABSPATH')) exit;
+
+/* SEO: meta description + twitter card for the configurator page
+   (og:* tags come from Jetpack, fed by the page's featured image and excerpt) */
+add_action('wp_head', function(){
+  if (!is_page('worldcup-custom-lamp')) return;
+  $desc = 'Design your own handmade World Cup lamp in a live 3D preview. '
+        . 'Pick any four players, or print your own name and number, on a shade '
+        . 'that sits on a real mini Trionda football. Handmade in England.';
+  echo '<meta name="description" content="' . esc_attr($desc) . '">' . "\n";
+  echo '<meta name="twitter:card" content="summary_large_image">' . "\n";
+}, 4);
 
 /* old Build Your Lamp product page -> the 3D configurator page */
 add_action('template_redirect', function(){
