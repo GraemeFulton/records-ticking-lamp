@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RS Lamp Configurator
  * Description: Native 3D configurator + add-to-basket for the Build Your Lamp product. Shortcode: [lamp_configurator product_id="11850" variation_id="11851"]
- * Version: 1.6
+ * Version: 1.7
  * Author: The Records Ticking
  */
 if (!defined('ABSPATH')) exit;
@@ -37,6 +37,7 @@ function rs_lamp_configurator_render($atts){
 
   ob_start(); ?>
 <div class="rs-lamp" id="rsLamp">
+  <div class="rs-left">
   <div class="rs-stage" id="rsStage" aria-label="Rotatable lamp preview. Drag to spin the shade.">
     <div class="rs-scene" id="rsScene">
       <div class="rs-glow"></div>
@@ -44,6 +45,18 @@ function rs_lamp_configurator_render($atts){
       <div class="rs-wrap"><div class="rs-shade" id="rsShade"></div></div>
     </div>
     <div class="rs-hint">Drag to spin</div>
+  </div>
+  <p class="rs-demo-note">This 3D preview is a demo to help you choose your panels.
+    See the description and the example photos for the true look and feel of the finished lamp.</p>
+  <div class="rs-examples">
+    <span class="rs-examples-label">EXAMPLES</span>
+    <div class="rs-examples-grid">
+      <img src="https://therecordsticking.co.uk/wp-content/uploads/2026/06/a-47-315x420.jpg"
+        alt="Finished World Cup Trionda table lamp" loading="lazy">
+      <img src="https://therecordsticking.co.uk/wp-content/uploads/2026/06/4-pics.jpg"
+        alt="Four examples of finished lamp shades" loading="lazy">
+    </div>
+  </div>
   </div>
 
   <div class="rs-buy">
@@ -100,8 +113,16 @@ function rs_lamp_configurator_render($atts){
   justify-content:center; max-width:960px; margin:8px auto 44px }
 .rs-lamp *, .rs-lamp *:before, .rs-lamp *:after{ box-sizing:border-box }
 
+/* ---- left column: stage + demo note + example photos ---- */
+.rs-left{ flex:1 1 320px; max-width:420px; display:flex; flex-direction:column; gap:14px }
+.rs-demo-note{ font-size:12px; color:#888; line-height:1.55; margin:0 }
+.rs-examples-label{ font-size:11px; letter-spacing:.18em; color:#888; font-weight:700;
+  display:block; margin:4px 0 8px }
+.rs-examples-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:start }
+.rs-examples-grid img{ width:100%; height:auto; display:block; border-radius:4px }
+
 /* ---- stage: real photo below, CSS-3D shade above ---- */
-.rs-stage{ position:relative; flex:1 1 320px; max-width:420px; aspect-ratio:420/590;
+.rs-stage{ position:relative; width:100%; aspect-ratio:420/590;
   border-radius:10px; overflow:hidden; touch-action:pan-y; cursor:grab;
   user-select:none; -webkit-user-select:none;
   box-shadow:0 28px 56px -28px rgba(30,25,20,.5);
@@ -226,7 +247,7 @@ function rs_lamp_configurator_render($atts){
 .rs-topbtn:hover{ background:#d5281e; color:#fff }
 @media (max-width:719px){
   .rs-lamp{ padding:0 16px }
-  .rs-stage{ flex-basis:100%; margin:0 auto }
+  .rs-left{ flex-basis:100%; margin:0 auto }
   .rs-buy{ max-width:none }
   .rs-desc{ margin:0 16px 44px; padding:26px 20px }
   .rs-desc-points, .rs-specs{ grid-template-columns:1fr }
