@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RS Lamp Configurator
  * Description: Native 3D configurator + add-to-basket for the Build Your Lamp product. Shortcode: [lamp_configurator product_id="11850" variation_id="11851"]
- * Version: 1.7
+ * Version: 1.8
  * Author: The Records Ticking
  */
 if (!defined('ABSPATH')) exit;
@@ -77,13 +77,14 @@ function rs_lamp_configurator_render($atts){
       <input type="hidden" name="rs_custom_name_<?php echo $i; ?>" value="">
       <input type="hidden" name="rs_custom_num_<?php echo $i; ?>" value="">
       <?php endfor; ?>
+      <button type="button" class="rs-preview" id="rsPreviewBtn">&uarr;&nbsp;&nbsp;PREVIEW LAMP</button>
       <button type="submit" class="rs-add">ADD TO BASKET</button>
     </form>
     <p class="rs-note">Handmade to order. Every panel is lit from inside by the lamp.</p>
   </div>
 </div>
 
-<section class="rs-desc">
+<section class="rs-desc" id="rsDescStart">
   <div class="rs-desc-head">
     <h2 class="rs-desc-title">HANDMADE IN <span>ENGLAND</span></h2>
     <p>Bespoke handmade table lamps, made using an official Fifa Trionda World Cup mini ball.</p>
@@ -106,7 +107,6 @@ function rs_lamp_configurator_render($atts){
     <div><dt>DISPATCH</dt><dd>Please allow 3 working days for your shade to be made</dd></div>
   </dl>
 </section>
-<button type="button" class="rs-topbtn" id="rsTop" aria-label="Scroll back to the lamp preview">&uarr;&nbsp;&nbsp;PREVIEW</button>
 
 <style>
 .rs-lamp{ display:flex; flex-wrap:wrap; gap:44px; align-items:flex-start;
@@ -239,16 +239,15 @@ function rs_lamp_configurator_render($atts){
   font-weight:700; line-height:2 }
 .rs-specs dd{ margin:0; font-size:13px; color:#444; line-height:1.7 }
 
-.rs-topbtn{ position:fixed; right:14px; bottom:14px; z-index:90; display:none;
-  align-items:center; background:#141414; color:#fff; border:0; border-radius:999px;
-  padding:12px 20px; font-size:13px; font-weight:700; letter-spacing:.12em;
-  cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,.35) }
-.rs-topbtn.show{ display:inline-flex }
-.rs-topbtn:hover{ background:#d5281e; color:#fff }
+.rs-preview{ display:none; width:100%; background:#d5281e; color:#fff; border:0;
+  padding:14px 20px; font-size:14px; font-weight:700; letter-spacing:.14em;
+  cursor:pointer; border-radius:3px; text-transform:uppercase; margin-bottom:10px }
+.rs-preview:hover, .rs-preview:active{ background:#b01a12; color:#fff }
 @media (max-width:719px){
   .rs-lamp{ padding:0 16px }
   .rs-left{ flex-basis:100%; margin:0 auto }
   .rs-buy{ max-width:none }
+  .rs-preview{ display:block }
   .rs-desc{ margin:0 16px 44px; padding:26px 20px }
   .rs-desc-points, .rs-specs{ grid-template-columns:1fr }
 }
@@ -500,19 +499,8 @@ function rs_lamp_configurator_render($atts){
   function fit(){ scene.style.transform = "scale(" + (stage.clientWidth/420) + ")"; }
   window.addEventListener("resize", fit);
 
-  /* back-to-preview button once the lamp is scrolled out of view */
-  var topBtn = document.getElementById("rsTop");
-  if ("IntersectionObserver" in window){
-    new IntersectionObserver(function(entries){
-      topBtn.classList.toggle("show", !entries[0].isIntersecting);
-    }, {threshold: 0.1}).observe(stage);
-  } else {
-    window.addEventListener("scroll", function(){
-      topBtn.classList.toggle("show",
-        window.scrollY > stage.getBoundingClientRect().top + window.scrollY + stage.offsetHeight);
-    });
-  }
-  topBtn.addEventListener("click", function(){
+  /* preview button (mobile): scroll back up to the lamp */
+  document.getElementById("rsPreviewBtn").addEventListener("click", function(){
     stage.scrollIntoView({behavior: RM ? "auto" : "smooth", block: "start"});
   });
 
