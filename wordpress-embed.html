@@ -1,0 +1,62 @@
+<!--
+  Paste this into a "Custom HTML" block on the WooCommerce product page
+  (below the variation form). Change VIEWER_URL to wherever index.html is hosted.
+
+  It finds the four "Shade Panel" variation dropdowns, mirrors them into the
+  iframe via postMessage (live, no reload), and falls back to rebuilding the
+  iframe src if postMessage isn't available yet.
+-->
+<div style="max-width:640px;margin:16px 0">
+  <iframe id="lamp-preview"
+    src="https://YOUR-VIEWER-DOMAIN/index.html?embed=1"
+    title="Live lamp preview — drag to spin"
+    style="width:100%;aspect-ratio:4/5;border:0;border-radius:4px"
+    loading="lazy"></iframe>
+</div>
+
+<script>
+(function(){
+  var VIEWER_URL = "https://YOUR-VIEWER-DOMAIN/index.html";
+  var frame = document.getElementById("lamp-preview");
+
+  // WooCommerce renders variation selects named attribute_shade-panel-1 ... -4.
+  // Adjust the matcher if your attribute slugs differ (view page source to check).
+  function getSelects(){
+    return Array.prototype.slice.call(
+      document.querySelectorAll('select[name^="attribute_"]')
+    ).filter(function(s){ return /shade.?panel/i.test(s.name); })
+     .sort(function(a,b){ return a.name.localeCompare(b.name); });
+  }
+
+  function currentPanels(){
+    return getSelects().map(function(s){
+      var v = s.options[s.selectedIndex] ? s.options[s.selectedIndex].text : "";
+      // Keep empty slots so panel positions stay aligned; the viewer skips blanks.
+      return { name: (/choose an option/i.test(v) ? "" : v) };
+    });
+  }
+
+  function push(){
+    var panels = currentPanels();
+    if (!panels.some(function(p){ return p.name; })) return;
+    if (frame.contentWindow){
+      frame.contentWindow.postMessage({ type:"lamp:set", panels:panels }, "*");
+    }
+  }
+
+  // Live updates on change; initial push once the iframe loads.
+  document.addEventListener("change", function(e){
+    if (e.target && e.target.matches && e.target.matches('select[name^="attribute_"]')) push();
+  });
+  frame.addEventListener("load", push);
+
+  // Fallback: also encode into the URL so a hard refresh keeps state.
+  function rebuildSrc(){
+    var q = [];
+    currentPanels().forEach(function(p, i){ q.push("p"+(i+1)+"="+encodeURIComponent(p.name)); });
+    frame.src = VIEWER_URL + "?embed=1" + (q.length ? "&"+q.join("&") : "");
+  }
+  // Uncomment if postMessage proves unreliable with your caching/lazy-load setup:
+  // document.addEventListener("change", rebuildSrc);
+})();
+</script>
